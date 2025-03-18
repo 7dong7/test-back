@@ -1,5 +1,8 @@
 package org.myback.testback.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.myback.testback.controller.dto.User;
 import org.springframework.http.HttpStatus;
@@ -111,4 +114,38 @@ public class TestController {
 
         return new ResponseEntity<>(id, HttpStatus.OK); // 200 응답
     }
+    
+// ============== header & cookie 응답 =================
+
+    @PostMapping("/api/HeaderAndCookie")
+    public ResponseEntity<Long> responseHeaderAndCookie(HttpServletRequest request, HttpServletResponse response) {
+        log.info("HeaderAndCookie 요청 들어옴");
+        // 응답 헤더 설정
+        response.setHeader("access", "ExamJwtAccessToken");
+        // 쿠키 추가
+        response.addCookie(createCookie());
+        return new ResponseEntity<>(123L, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/RequestHeader")
+    public ResponseEntity<Long> requestHeader(HttpServletRequest request, HttpServletResponse response) {
+        log.info("RequestHeader 요청 들어옴");
+        String access = request.getHeader("access");
+        log.info("access: {}",access);
+
+        return new ResponseEntity<>(123L, HttpStatus.OK);
+    }
+
+
+    // === 쿠키 생성 기능 ====
+    public Cookie createCookie() {
+        Cookie cookie = new Cookie("refresh", "newCreateCookieExamRefreshToken"); // 쿠키 만들기
+        cookie.setMaxAge(24*60*60); // 쿠키 유효 기간 설정 (초 단위)
+        //cookie.setSecure(true); // HTTPS 의 보안 상태에서만 쿠키 유효 설정
+        //cookie.setPath("/");  // 애플리케이션내의 모든 경로에서 쿠키가 유효하게 설정
+        cookie.setHttpOnly(true); // HttpOnly 쿠키가 클라이언트 측 스크립트에서 접근할 수 없게 된다 (XSS) 공격 보호 설정
+
+        return cookie;
+    }
 }
+
