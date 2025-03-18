@@ -1,19 +1,20 @@
 package org.myback.testback.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.myback.testback.controller.dto.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
+@Slf4j
 public class TestController {
 
+// ===================== 응답 테스트 =============================
     // 1. 테스트 연결 확인
     @GetMapping("/api/text")
     public String test() {
@@ -68,12 +69,8 @@ public class TestController {
     }
     @GetMapping("/api/statusDtoBad")
     public ResponseEntity<User> statusDtoBad() {
-        User user = new User();
-        user.setId(0L);
-        user.setUsername("user1");
-        user.setEmail("user1@gmail.com");
 
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 200 응답
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 응답
     }
 
 
@@ -91,5 +88,27 @@ public class TestController {
         map.put("message", "Map 응답에 실패했습니다");
         map.put("status", "error");
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST); // 200 응답
+    }
+
+
+// ===================== 요청 테스트 =============================
+
+    @PostMapping("/api/requestData")
+    public ResponseEntity<User> requestDataTest(@RequestBody User user) {
+        log.info("user= {}",user); // 정보 출력
+
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK); // 200 응답
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 응답
+        }
+    }
+
+
+    @GetMapping("/api/path/{id}")
+    public ResponseEntity<Long> requestDataTest(@PathVariable("id") Long id) {
+        log.info("id: {}",id);
+
+        return new ResponseEntity<>(id, HttpStatus.OK); // 200 응답
     }
 }
